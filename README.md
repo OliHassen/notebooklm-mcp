@@ -1,10 +1,9 @@
 > [!WARNING]
 > **This project is no longer maintained.** As of September 2026 the repository is archived: no updates, bug fixes or support. The npm package will not receive further releases. It may stop working when the upstream services change. Feel free to fork.
->
-> This repository is a fork that carries the v2.0.0 changes. It is not on npm, so install it from source or from GitHub (see [Install](#install)).
 
 # NotebookLM MCP Server
 
+[![npm](https://img.shields.io/npm/v/notebooklm-mcp.svg)](https://www.npmjs.com/package/notebooklm-mcp)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![MCP](https://img.shields.io/badge/MCP-Streamable--HTTP-green.svg)](https://modelcontextprotocol.io/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
@@ -33,68 +32,58 @@ MCP server for Google NotebookLM. It drives a real Chrome via Patchright (stealt
 - **Chrome** (stable channel) preferred. The bundled Patchright Chromium is used as a fallback when Chrome refuses to launch — set `BROWSER_CHANNEL=chromium` to force it.
 - **Linux / macOS / Windows.**
 - **WSL2 + WSLg** (Windows 11+) is fully supported. WSL1 cannot launch a Chromium and is not supported — upgrade to WSL2.
-- **Headless Linux servers**: the one-time `setup_auth` needs a display because the login flow opens a visible window. Run it once under `xvfb-run` (`xvfb-run -a npx github:OliHassen/notebooklm-mcp`). After login, the persistent Chrome profile lets every subsequent run go fully headless.
+- **Headless Linux servers**: the one-time `setup_auth` needs a display because the login flow opens a visible window. Run it once under `xvfb-run` (`xvfb-run -a npx notebooklm-mcp`). After login, the persistent Chrome profile lets every subsequent run go fully headless.
 
 ---
 
 ## Install
 
-> [!NOTE]
-> This fork is not published to npm. `npx notebooklm-mcp` (no `github:` prefix) installs the older upstream package, not this code. Use one of the options below.
-
-### From source (recommended)
+### Published package
 
 ```bash
-git clone https://github.com/OliHassen/notebooklm-mcp
+npx notebooklm-mcp@latest
+```
+
+This is the recommended path for end users. `npx` keeps the binary cached and self-updates on `@latest`.
+
+### From source
+
+```bash
+git clone https://github.com/PleasePrompto/notebooklm-mcp
 cd notebooklm-mcp
-npm install            # the prepare script runs the build → dist/index.js
-npx patchright install chromium   # only needed if Chrome isn't installed
+npm install
+npm run build
 node dist/index.js
 ```
 
-To update later: `git pull && npm install`.
-
-### Straight from GitHub with npx
-
-```bash
-npx github:OliHassen/notebooklm-mcp
-```
-
-npx clones the repo, builds it, and caches the result. The first run takes a while. To pick up new commits, clear the cache (`npx clear-npx-cache` or delete `~/.npm/_npx`), or pin a commit or tag with `github:OliHassen/notebooklm-mcp#<ref>`.
-
-The rest of this README and the docs use `npx github:OliHassen/notebooklm-mcp` in examples. If you built from source, substitute `node /absolute/path/to/notebooklm-mcp/dist/index.js`.
+The `prepare` script also runs `npm run build`, so a fresh `npm install` produces a runnable `dist/index.js`.
 
 ---
 
 ## Connect to Claude Code
 
-CLI form, from a local clone (run inside the repo folder):
+CLI form:
 
 ```bash
-claude mcp add notebooklm -- node "$(pwd)/dist/index.js"
-claude mcp list        # should show notebooklm as connected
+claude mcp add notebooklm -- npx notebooklm-mcp@latest
+# or, from a local clone:
+claude mcp add notebooklm -- node /absolute/path/to/notebooklm-mcp/dist/index.js
 ```
 
-Or without a clone:
-
-```bash
-claude mcp add notebooklm -- npx github:OliHassen/notebooklm-mcp
-```
-
-Manual form, added to `~/.claude.json`:
+Manual form — drop into `~/.claude.json`:
 
 ```json
 {
   "mcpServers": {
     "notebooklm": {
-      "command": "node",
-      "args": ["/absolute/path/to/notebooklm-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["notebooklm-mcp@latest"]
     }
   }
 }
 ```
 
-To use npx instead, set `"command": "npx"` and `"args": ["github:OliHassen/notebooklm-mcp"]`.
+For a local build, replace `command`/`args` with `"command": "node"`, `"args": ["/absolute/path/to/dist/index.js"]`.
 
 ---
 
@@ -107,7 +96,7 @@ To use npx instead, set `"command": "npx"` and `"args": ["github:OliHassen/noteb
   "mcpServers": {
     "notebooklm": {
       "command": "npx",
-      "args": ["github:OliHassen/notebooklm-mcp"]
+      "args": ["notebooklm-mcp@latest"]
     }
   }
 }
@@ -116,12 +105,12 @@ To use npx instead, set `"command": "npx"` and `"args": ["github:OliHassen/noteb
 ### Codex CLI
 
 ```bash
-codex mcp add notebooklm -- npx github:OliHassen/notebooklm-mcp
+codex mcp add notebooklm npx notebooklm-mcp@latest
 ```
 
 ### Generic MCP client (stdio)
 
-Any client that can spawn an MCP server over stdio can use the same `npx github:OliHassen/notebooklm-mcp` invocation. The server speaks MCP 2025 + the SDK's `Server` capability set (`tools`, `resources`, `prompts`, `completions`, `logging`).
+Any client that can spawn an MCP server over stdio can use the same `npx notebooklm-mcp@latest` invocation. The server speaks MCP 2025 + the SDK's `Server` capability set (`tools`, `resources`, `prompts`, `completions`, `logging`).
 
 ### HTTP-only clients (n8n, Zapier, Make, hosted agents)
 
@@ -158,15 +147,15 @@ The server speaks MCP over either stdio or Streamable-HTTP.
 ### stdio (default)
 
 ```bash
-npx github:OliHassen/notebooklm-mcp
+npx notebooklm-mcp@latest
 ```
 
 ### Streamable-HTTP
 
 ```bash
-npx github:OliHassen/notebooklm-mcp --transport http --port 3000
+npx notebooklm-mcp@latest --transport http --port 3000
 # bind to all interfaces:
-npx github:OliHassen/notebooklm-mcp --transport http --port 3000 --host 0.0.0.0
+npx notebooklm-mcp@latest --transport http --port 3000 --host 0.0.0.0
 ```
 
 Equivalent env vars: `NOTEBOOKLM_TRANSPORT=http`, `NOTEBOOKLM_PORT=3000`, `NOTEBOOKLM_HOST=0.0.0.0`.
@@ -191,10 +180,10 @@ Default host is `127.0.0.1`. Bind to `0.0.0.0` only when the server is reachable
 Run distinct Chrome profiles for different Google accounts:
 
 ```bash
-npx github:OliHassen/notebooklm-mcp --account work
-npx github:OliHassen/notebooklm-mcp --account personal
+npx notebooklm-mcp@latest --account work
+npx notebooklm-mcp@latest --account personal
 # or via env:
-NOTEBOOKLM_ACCOUNT=work npx github:OliHassen/notebooklm-mcp
+NOTEBOOKLM_ACCOUNT=work npx notebooklm-mcp@latest
 ```
 
 Each account gets its own subtree under `<dataDir>/accounts/<name>/` — separate cookies, separate `chrome_profile`, separate auth state. Account names must match `[a-z0-9][a-z0-9-_]{0,30}`. The first run for a new account requires its own `setup_auth`.
@@ -270,22 +259,22 @@ Profiles trim the tool list to keep host-agent context budgets in check.
 Set the profile persistently:
 
 ```bash
-npx github:OliHassen/notebooklm-mcp config set profile minimal
-npx github:OliHassen/notebooklm-mcp config get
+npx notebooklm-mcp config set profile minimal
+npx notebooklm-mcp config get
 ```
 
 Override per-process via env var:
 
 ```bash
-NOTEBOOKLM_PROFILE=standard npx github:OliHassen/notebooklm-mcp
+NOTEBOOKLM_PROFILE=standard npx notebooklm-mcp@latest
 ```
 
 Disable specific tools regardless of profile:
 
 ```bash
-npx github:OliHassen/notebooklm-mcp config set disabled-tools cleanup_data,re_auth
+npx notebooklm-mcp config set disabled-tools cleanup_data,re_auth
 # or
-NOTEBOOKLM_DISABLED_TOOLS=cleanup_data,re_auth npx github:OliHassen/notebooklm-mcp
+NOTEBOOKLM_DISABLED_TOOLS=cleanup_data,re_auth npx notebooklm-mcp@latest
 ```
 
 Settings are persisted in `<configDir>/settings.json` (XDG/`%APPDATA%` location, see config.ts).

@@ -30,11 +30,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OliHassen/notebooklm-mcp.git"
+    "url": "git+https://github.com/PleasePrompto/notebooklm-mcp.git"
   },
-  "homepage": "https://github.com/OliHassen/notebooklm-mcp#readme",
+  "homepage": "https://github.com/PleasePrompto/notebooklm-mcp#readme",
   "bugs": {
-    "url": "https://github.com/OliHassen/notebooklm-mcp/issues"
+    "url": "https://github.com/PleasePrompto/notebooklm-mcp/issues"
   },
   "files": [
     "dist",
